@@ -29,9 +29,9 @@ function palindrome_recursif(chaine) {
 let chaine = process.argv[2].split(' ').join('');
 
 if(!program.recursif) {
-  console.log("itératif");
+  console.info("itératif");
   console.log(palindrome_iteratif(chaine));
 } else {
-  console.log("recursif");
+  console.info("recursif");
   console.log(palindrome_recursif(chaine));
 }
