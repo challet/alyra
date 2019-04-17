@@ -1,4 +1,4 @@
-// https://ecole.alyra.fr/mod/assign/view.php?id=47&forceview=1
+// https://ecole.alyra.fr/mod/assign/view.php?id=47
 
 var program = require('commander');
 program

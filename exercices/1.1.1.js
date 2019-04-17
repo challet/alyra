@@ -1,4 +1,4 @@
-// https://forum.alyra.fr/t/exercice-1-1-1-trouver-un-nombre-aleatoire/67/5
+// https://ecole.alyra.fr/mod/assign/view.php?id=35
 
 const rl = require('readline').createInterface({
   input: process.stdin,
