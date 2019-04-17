@@ -21,7 +21,7 @@ const transactions = [
 function applique_masque(mask) {
   const result = { mask: mask, taille: 0, pourboire: 0 };
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < transactions.length; i++) {
     if (mask & (2 ** i)) {
       result.taille     += transactions[i].taille;
       result.pourboire  += transactions[i].pourboire;
@@ -31,10 +31,10 @@ function applique_masque(mask) {
   return result;
 }
 
-
+// compléxité : O(2^n)
 function cherche_exhaustif(taille_allouee) {
   const combinaisons = [];
-  const nb_combinaisons = 2 ** 8;
+  const nb_combinaisons = 2 ** transactions.length;
   
   // utiliser un masque binaire pour évaluer toutes les combinaisons
   for (let mask = 0; mask < nb_combinaisons; mask++) {
@@ -50,17 +50,13 @@ function cherche_exhaustif(taille_allouee) {
     .pop();
 }
 
-
+// compléxité : O(n)
 function cherche_optimise(taille_allouee) {
-  // trier les combinaisons par rendement (croissant)
-  transactions.sort( (c1, c2) => c1.pourboire / c1.taille - c2.pourboire / c2.taille);
+  // trier les combinaisons par rendement (/!\ décroissant)
+  transactions.sort( (c1, c2) =>  c2.pourboire / c2.taille - c1.pourboire / c1.taille);
   
   const result = { mask: 0, taille: 0, pourboire: 0 };
   // tenter d'ajouter les plus efficaces en premier
-  for (let i = 0; i < transactions.length; i++) {
-    
-  }
-  
   transactions.forEach( (trans, i) => {
     if (trans.taille <= taille_allouee - result.taille) {
       result.taille     += trans.taille;
