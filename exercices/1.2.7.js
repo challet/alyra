@@ -18,8 +18,8 @@ const data = [
   { ville: "Washington DC",   ip: "50.87.60.166"}
 ];
 
-const Hashes = require('jshashes');
-const md5 = new Hashes.MD5();
+const MD5 = require('crypto-js/md5');
+//const md5 = new Hashes.MD5();
 
 // table de hash avec 8 entrées [0 -> 7]
 var table = new Array(taille_table);
@@ -27,7 +27,7 @@ console.log(table);
 
 // store the servers in the hash table
 data.forEach( (serveur) => {
-  var hash = Number(`0x${md5.hex(serveur.ip).charAt(0)}`) % taille_table;
+  var hash = Number(`0x${MD5(serveur.ip).toString().charAt(0)}`) % taille_table;
   if (typeof table[hash] == 'undefined') {
     table[hash] = [];
   }
