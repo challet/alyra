@@ -15,8 +15,7 @@ const transactions = [
   { taille: 1000, pourboire:  2800 },
   { taille: 1300, pourboire:  5000 },
   { taille:  600, pourboire:  1500 }
-]
-
+];
 
 function applique_masque(mask) {
   const result = { mask: mask, taille: 0, pourboire: 0 };
