@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "commander": "^2.20.0",
+    "jshashes": "^1.0.7",
     "readline": "^1.3.0"
   }
 }
