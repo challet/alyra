@@ -41,7 +41,7 @@ function cherche_exhaustif(taille_allouee) {
   }
   
   return combinaisons
-    // filtrer les combinaisosns qui dépassent la taille allouée
+    // filtrer les combinaisons qui dépassent la taille allouée
     .filter( (comb) => comb.taille <= taille_allouee )
     // trier les combinaisons par pourboire gagné (croissant)
     .sort( (c1, c2) => c1.pourboire - c2.pourboire )
