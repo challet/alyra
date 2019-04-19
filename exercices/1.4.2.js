@@ -1,0 +1,1 @@
+// voir la fonction format_notation_variable dans le fichier 1.4.1.js

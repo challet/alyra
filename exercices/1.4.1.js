@@ -3,7 +3,7 @@ const BASE = 16;
 
 function caractere_hexa(chiffre) {
   switch (chiffre) {
-    case 0:case 1:case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
       return chiffre.toString();
     break;
     case 10:
@@ -40,40 +40,51 @@ function entier_vers_hexa(nombre) {
     nombre_tampon -= i * chiffre;
   }
   
-  // extra 0 pour avoir un nombre de caractères multiple de 2
-  if (result.length % 2 != 0) {
-    result.unshift('0');
-  }
+
   
   return result;
 }
 
-function format_big_endian(hexa) {
-  console.info('big endian');
-  var chaine = "0x";
-  for (let i = 0; i < hexa.length; i += 2) {
-    chaine += " " + hexa.slice(i, i + 2).join('');
+function format(hexa, format) {
+  // extra 0 pour avoir un nombre de caractères multiple de 2
+  if (hexa.length % 2 != 0) {
+    hexa.unshift('0');
   }
-  return chaine;
+
+  // order and/or add useful bytes
+  switch (format) {
+    case 'big': default:
+      console.info('big endian');
+      // rien de plus à faire : les octets sont déjà triés
+    break;
+    case 'little':
+      console.info('little endian');
+      hexa = format_little_endian(hexa);
+    break;
+    case 'varint':
+      console.info('varInt');
+      hexa = format_var_int(format_little_endian(hexa));
+    break;
+  }
+  console.debug(hexa);
+  // add a prefixe and intermediate spaces
+  let bytes = [];
+  while (hexa.length != 0) {
+    bytes.push(hexa.splice(0, 2).join(''));
+  }
+  return `0x ${bytes.join(' ')}`;
 }
 
 function format_little_endian(hexa) {
-  console.info('little endian');
-  var chaine = "0x";
-  for (let i = hexa.length - 2; i >= 0; i -= 2) {
-    chaine += " " + hexa.slice(i, i + 2).join('');
+  let bytes = [];
+  while (hexa.length != 0) {
+    bytes = bytes.concat(hexa.splice(-2, 2));
   }
-  return chaine;
+  return bytes;
 }
-
-var program = require('commander');
-program
-  .version("1.0.0")
-  .option("-l, --little")
-  .parse(process.argv);
 
 var entree = process.argv[2];
 var hexa = entier_vers_hexa(entree);
 console.log(hexa);
-var sortie = !program.little ? format_big_endian(hexa) : format_little_endian(hexa);
+var sortie = format(hexa, process.argv[3]);
 console.log(sortie);
