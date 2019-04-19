@@ -1,1 +1,1 @@
-// voir la fonction format_notation_variable dans le fichier 1.4.1.js
+// voir la fonction format_var_int dans le fichier 1.4.1.js
