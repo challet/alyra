@@ -1,14 +1,101 @@
-module.exports = class {
-  constructor(nombre, options) {
-    options = Object.assign({little: false, varint: false}, options || {});
+const BASE = 16;
+
+const inverser_endian = function(hexa) {
+  let bytes = [];
+  while (hexa.length != 0) {
+    bytes = bytes.concat(hexa.splice(-2, 2));
+  }
+  return bytes;
+}
+
+const enlever_varint = function(hexa) {
+  
+}
+
+const ajouter_varint = function(hexa) {
+  const nombre_octets = Math.ceil(hexa.length / 2)
+
+  if (nombre_octets > 8) {
+    throw `${hexa} a une taille trop grande (> 8 octets)`;
+  } else if (nombre_octets > 4) {
+    var nombre_final = 8;
+  } else if (nombre_octets > 2) {
+    var nombre_final = 4;
+  } else if (Number.parseInt(hexa.join(''), BASE) >= 253) {
+    var nombre_final = 2;
+  } else {
+    var nombre_final = 1;
+  }
+
+  // remplir à droite les octets vides
+  const nombre_manquant = 2 * nombre_final - hexa.length;
+  if (nombre_manquant > 0) {
+    hexa = hexa.concat(Array(nombre_manquant).fill(0));
+  }
+
+  // ajouter un préfixe signalant la taille
+  switch (nombre_final) {
+    case 8:
+      hexa = [15, 15].concat(hexa);
+    break;
+    case 4:
+      hexa = [15, 14].concat(hexa);
+    break;
+    case 2:
+      hexa = [15, 13].concat(hexa);
+    break;
+  }
+
+  return hexa;
+}
+
+// TODO : check if it can be replaced by number.toString(16)
+const car_dec_vers_hexa = function(chiffre) {
+  switch (chiffre) {
+    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+      return chiffre.toString();
+    break;
+    case 10:
+      return 'A';
+    break;
+    case 11:
+      return 'B';
+    break;
+    case 12:
+      return 'C';
+    break;
+    case 13:
+      return 'D';
+    break;
+    case 14:
+      return 'E';
+    break;
+    case 15:
+      return 'F';
+    break;
+    default:
+      throw (`${chiffre} n'est pas une valeur valide`);
+    break;
+  }
+}
+
+const car_hex_vers_dec = function(car) {
+  return  Number.parseInt(car, BASE);
+}
+
+module.exports = class Hexa {
+  
+  constructor(hexa, style) {
+    this.style        = ['bigendian', 'littleendian', 'varint'].includes(style) ? style : 'bigendian';
+    this.hexa         = hexa;
     
-    this.nombre        = nombre;
-    this.hexa          = this.entier_vers_hexa(nombre);
-    this.affichage     = this.formatter(options.little, options.varint);
+    // extra 0 pour avoir un nombre de caractères multiple de 2
+    if (this.hexa.length % 2 != 0) {
+      this.hexa.unshift(0);
+    }
   }
   
-  entier_vers_hexa(nombre) {
-    const BASE = 16;
+  static depuisNombre(nombre) {
     let result = [];
     let nombre_tampon = nombre;
   
@@ -18,32 +105,70 @@ module.exports = class {
       nombre_tampon -= i * chiffre;
     }
   
+    return new this(result, 'bigendian');
+  }
+  
+  static depuisChaine(chaine, style) {
+    const regexp = /^(?:0x)([0-9A-F]+)$/;
+    
+    // enlever les espaces
+    chaine = chaine.replace(' ', '');
+    // tester la validité
+    if (!regexp.test(chaine)) {
+      throw `${chaine} n'est pas hexadécimal`;
+    }
+    
+    var hexa = regexp.exec(chaine)[1].split('').map(car_hex_vers_dec);
+    
+    return new this(hexa, style);
+  }
+  
+  versNombre() {
+    return Number.parseInt(this.versBigEndian().join(''), BASE);
+  }
+  
+  versBigEndian() {
+    var result = this;
+    switch (this.style) {
+      case 'varint':
+        result = new this.constructor(enlever_varint(result.hexa), 'littleendian');
+        // no break
+      case 'littleendian':
+        result = new this.constructor(inverser_endian(result.hexa), 'bigendian');
+      break;
+    }
     return result;
   }
   
-  formatter(little, varint) {
-    // validité des paramètres
-    if (varint && !little) {
-      throw "l'option --varint doit être utilisé avec l'option --little";
+  versLittleEndian() {
+    switch (this.style) {
+      case 'varint':
+        return new this.constructor(enlever_varint(this.hexa), 'littleendian');
+        break;
+      case 'bigendian':
+        return new this.constructor(inverser_endian(this.hexa), 'littleendian');
+      break;
     }
-    
+  }
+  
+  versVarInt() {
+    var result = this;
+    switch (this.style) {
+      case 'bigendian':
+        result = new this.constructor(inverser_endian(result.hexa), 'littleendian');
+        // no break
+      case 'littleendian':
+        result = new this.constructor(ajouter_varint(result.hexa), 'varint');
+      break;
+    }
+    return result;
+  }
+  
+  toString() {
     var hexa = this.hexa;
-    
-    // extra 0 pour avoir un nombre de caractères multiple de 2
-    if (hexa.length % 2 != 0) {
-      hexa.unshift(0);
-    }
-
-    // applique les options
-    if (little === true) {
-      hexa = this.inverser_endian(hexa);
-    }
-    if (varint === true) {
-      hexa = this.ajouter_varint(hexa);
-    }
   
     // transforme en caractères
-    hexa = hexa.map(this.constructor.caractere_hexa);
+    hexa = hexa.map(car_dec_vers_hexa);
   
     // ajoute un préfixe et des espaces inter-octets
     let bytes = [];
@@ -52,82 +177,5 @@ module.exports = class {
     }
     return `0x ${bytes.join(' ')}`;
   }
-  
-  toString() {
-    return this.affichage;
-  }
-  
-  inverser_endian(hexa) {
-    let bytes = [];
-    while (hexa.length != 0) {
-      bytes = bytes.concat(hexa.splice(-2, 2));
-    }
-    return bytes;
-  }
-  
-  ajouter_varint(hexa) {
-    const nombre_octets = Math.ceil(hexa.length / 2)
-  
-    if (nombre_octets > 8) {
-      throw `${hexa} a une taille trop grande (> 8 octets)`;
-    } else if (nombre_octets > 4) {
-      var nombre_final = 8;
-    } else if (nombre_octets > 2) {
-      var nombre_final = 4;
-    } else if (Number.parseInt(hexa.join(''), 16) >= 253) {
-      var nombre_final = 2;
-    } else {
-      var nombre_final = 1;
-    }
-  
-    // remplir à droite les octets vides
-    const nombre_manquant = 2 * nombre_final - hexa.length;
-    if (nombre_manquant > 0) {
-      hexa = hexa.concat(Array(nombre_manquant).fill(0));
-    }
-  
-    // ajouter un préfixe signalant la taille
-    switch (nombre_final) {
-      case 8:
-        hexa = [15, 15].concat(hexa);
-      break;
-      case 4:
-        hexa = [15, 14].concat(hexa);
-      break;
-      case 2:
-        hexa = [15, 13].concat(hexa);
-      break;
-    }
-  
-    return hexa;
-  }
-  
-  static caractere_hexa(chiffre) {
-    switch (chiffre) {
-      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-        return chiffre.toString();
-      break;
-      case 10:
-        return 'A';
-      break;
-      case 11:
-        return 'B';
-      break;
-      case 12:
-        return 'C';
-      break;
-      case 13:
-        return 'D';
-      break;
-      case 14:
-        return 'E';
-      break;
-      case 15:
-        return 'F';
-      break;
-      default:
-        throw (`${chiffre} n'est pas une valeur valide`);
-      break;
-    }
-  }
+    
 }
