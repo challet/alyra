@@ -6,17 +6,6 @@ class Hexa {
     this.style        = ['bigendian', 'littleendian', 'varint'].includes(style) ? style : 'bigendian';
     this.hexa         = hexa_array;
     
-    // extra 0 pour avoir un nombre de caractères multiple de 2
-    //console.log(this.style, this.hexa.length % 2 != 0);
-    //if (this.hexa.length % 2 != 0) {
-    //  
-    //  if (this.style == 'bigendian') {
-    //    this.hexa.unshift(0);
-    //  } else {
-    //    this.hexa.push(0);
-    //  }
-    //}
-    
     // données immutables pré-calculées
     this.cached = {};
     this.cached.taille = Math.ceil(this.hexa.length / 2);
@@ -29,6 +18,8 @@ class Hexa {
     
     // autres vérifications
     if (this.style == 'varint' && !this.verifierVarInt()) {
+      console.log(this.toString());
+      console.log(this.cached);
       throw "La taille des données dépasse celle prévue par l'en-tête VarInt";
     }
   }
@@ -41,6 +32,11 @@ class Hexa {
       let chiffre = (nombre_tampon / i) % BASE;
       result.unshift(chiffre);
       nombre_tampon -= i * chiffre;
+    }
+    
+    // compléter pour avoir un octet complet
+    if (result.length % 2 == 1) {
+      result.unshift(0);
     }
   
     return new this(result, 'bigendian');
@@ -150,22 +146,36 @@ class Hexa {
     );
   }
   
-  splitVarInt() {
+  // TODO : vérifier le fonctionnement (intialement tenté sur ScriptSig)
+  // est-ce qu'il y a toujours un octets avec le nombre d'éléments ?
+  identifierListe() {
     let fields = [];
-    let hexa = this.versBigEndian().hexa.slice() // copy;
+    let hexa = this.hexa.slice() // copy;
+    let nombre_attendu = null;
     
-    while (hexa.length != 0) {
+    do {
       let entete = extraire_entete_varint(hexa);
+      console.log(entete);
+      // le premier en-tête determine le nombre d'éléments suivants
+      if (nombre_attendu === null) {
+        nombre_attendu = entete.versNombre() + 1;
+        hexa.splice(0, entete.taille() * 2);
+        continue;
+      } else {
+        console.log(entete.taille(), entete.versNombre());
+        let field = new this.constructor(
+          hexa.splice(0, (entete.taille() + entete.versNombre()) * 2 + 1),
+          'varint'
+        );
+        fields.push(field);
+        
+        //console.log(entete.taille(), entete.versNombre(), field.taille(), hexa.length/2);
+        //console.log(this.constructor.etalon(field.taille()).toString());
+        //console.log(field.toString());
+      }
       
-      let field = new this.constructor(
-        hexa.splice(0, (entete.taille() + entete.versNombre()) * 2),
-        'varint'
-      );
-      console.log(entete.taille(), entete.versNombre(), field.taille(), hexa.length/2);
-      console.log(this.constructor.etalon(field.taille()).toString());
-      console.log(field.toString());
-      fields.push(field);
-    }
+      
+    } while (hexa.length != 0 && --nombre_attendu != 0);
     
     return fields;
   }

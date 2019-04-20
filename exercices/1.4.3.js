@@ -1,10 +1,8 @@
 const Hexa = require('./lib/hexa.js');
-
 const lg = [11, 20]
 
 var entree = process.argv[2];
 var hexa = Hexa.depuisChaine(entree, 'littleendian');
-
 
 // TODO : make this a Hexa.toString() option
 function affiche(label, hexa) {
@@ -28,9 +26,8 @@ affiche('transaction', transaction);
 affiche('index',       index);
 affiche('script_sig',  script_sig);
 affiche('sequence',    sequence);
-console.log('-------');
-script_sig = script_sig.versLittleEndian();
-affiche('script_sig',  script_sig);
 
-
-script_sig.splitVarInt().map((field) => console.log(field.toString()));
+// console.log('-------');
+// script_sig = script_sig.versLittleEndian();
+// affiche('script_sig',  script_sig);
+// script_sig.splitVarInt().map((field) => console.log(field.toString()));
