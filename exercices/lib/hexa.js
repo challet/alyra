@@ -1,97 +1,35 @@
 const BASE = 16;
 
-const inverser_endian = function(hexa) {
-  let bytes = [];
-  while (hexa.length != 0) {
-    bytes = bytes.concat(hexa.splice(-2, 2));
-  }
-  return bytes;
-}
-
-const enlever_varint = function(hexa) {
+class Hexa {
   
-}
-
-const ajouter_varint = function(hexa) {
-  const nombre_octets = Math.ceil(hexa.length / 2)
-
-  if (nombre_octets > 8) {
-    throw `${hexa} a une taille trop grande (> 8 octets)`;
-  } else if (nombre_octets > 4) {
-    var nombre_final = 8;
-  } else if (nombre_octets > 2) {
-    var nombre_final = 4;
-  } else if (Number.parseInt(hexa.join(''), BASE) >= 253) {
-    var nombre_final = 2;
-  } else {
-    var nombre_final = 1;
-  }
-
-  // remplir à droite les octets vides
-  const nombre_manquant = 2 * nombre_final - hexa.length;
-  if (nombre_manquant > 0) {
-    hexa = hexa.concat(Array(nombre_manquant).fill(0));
-  }
-
-  // ajouter un préfixe signalant la taille
-  switch (nombre_final) {
-    case 8:
-      hexa = [15, 15].concat(hexa);
-    break;
-    case 4:
-      hexa = [15, 14].concat(hexa);
-    break;
-    case 2:
-      hexa = [15, 13].concat(hexa);
-    break;
-  }
-
-  return hexa;
-}
-
-// TODO : check if it can be replaced by number.toString(16)
-const car_dec_vers_hexa = function(chiffre) {
-  switch (chiffre) {
-    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-      return chiffre.toString();
-    break;
-    case 10:
-      return 'A';
-    break;
-    case 11:
-      return 'B';
-    break;
-    case 12:
-      return 'C';
-    break;
-    case 13:
-      return 'D';
-    break;
-    case 14:
-      return 'E';
-    break;
-    case 15:
-      return 'F';
-    break;
-    default:
-      throw (`${chiffre} n'est pas une valeur valide`);
-    break;
-  }
-}
-
-const car_hex_vers_dec = function(car) {
-  return  Number.parseInt(car, BASE);
-}
-
-module.exports = class Hexa {
-  
-  constructor(hexa, style) {
+  constructor(hexa_array, style) {
     this.style        = ['bigendian', 'littleendian', 'varint'].includes(style) ? style : 'bigendian';
-    this.hexa         = hexa;
+    this.hexa         = hexa_array;
     
     // extra 0 pour avoir un nombre de caractères multiple de 2
-    if (this.hexa.length % 2 != 0) {
-      this.hexa.unshift(0);
+    //console.log(this.style, this.hexa.length % 2 != 0);
+    //if (this.hexa.length % 2 != 0) {
+    //  
+    //  if (this.style == 'bigendian') {
+    //    this.hexa.unshift(0);
+    //  } else {
+    //    this.hexa.push(0);
+    //  }
+    //}
+    
+    // données immutables pré-calculées
+    this.cached = {};
+    this.cached.taille = Math.ceil(this.hexa.length / 2);
+    if (this.style == 'varint') {
+      let entete = extraire_entete_varint(this.hexa);
+      
+      this.cached.taille_varint_entete = entete.taille() + (entete.taille() != 1 ? 1 : 0);
+      this.cached.taille_varint_corps = entete.versNombre();
+    }
+    
+    // autres vérifications
+    if (this.style == 'varint' && !this.verifierVarInt()) {
+      throw "La taille des données dépasse celle prévue par l'en-tête VarInt";
     }
   }
   
@@ -109,7 +47,7 @@ module.exports = class Hexa {
   }
   
   static depuisChaine(chaine, style) {
-    const regexp = /^(?:0x)([0-9A-F]+)$/;
+    const regexp = /^(?:0x)?([0-9a-fA-F]+)$/;
     
     // enlever les espaces
     chaine = chaine.replace(' ', '');
@@ -118,64 +56,215 @@ module.exports = class Hexa {
       throw `${chaine} n'est pas hexadécimal`;
     }
     
+    // décomposer en caractères numériques
     var hexa = regexp.exec(chaine)[1].split('').map(car_hex_vers_dec);
     
     return new this(hexa, style);
   }
   
+  // séquences d'octets indéxées par leur position (utilitaire)
+  // taille en octets
+  static etalon(taille) {
+    let hexa = Array(taille * 2).fill().map((item, index) => {
+      let octet = Math.floor(index / 2);
+      if (index % 2 == 0) {
+        return Math.floor(octet / 16) % 16;
+      } else {
+        return octet % 16;
+      }
+    });
+    return new this(hexa);
+  }
+  
   versNombre() {
-    return Number.parseInt(this.versBigEndian().join(''), BASE);
+    return Number.parseInt(this.hexa.map(car_dec_vers_hexa).join(''), BASE);
   }
   
   versBigEndian() {
-    var result = this;
     switch (this.style) {
       case 'varint':
-        result = new this.constructor(enlever_varint(result.hexa), 'littleendian');
-        // no break
+        return this.versLittleEndian().versBigEndian();
+      break;
       case 'littleendian':
-        result = new this.constructor(inverser_endian(result.hexa), 'bigendian');
+        return new this.constructor(inverser_endian(this.hexa), 'bigendian');
+      break;
+      default:
+        return this;
       break;
     }
-    return result;
   }
   
   versLittleEndian() {
     switch (this.style) {
       case 'varint':
-        return new this.constructor(enlever_varint(this.hexa), 'littleendian');
+        return this.slice(this.tailleEnteteVarInt(), this.taille(), 'littleendian');
         break;
       case 'bigendian':
         return new this.constructor(inverser_endian(this.hexa), 'littleendian');
+      break;
+      default :
+        return this;
       break;
     }
   }
   
   versVarInt() {
-    var result = this;
     switch (this.style) {
       case 'bigendian':
-        result = new this.constructor(inverser_endian(result.hexa), 'littleendian');
-        // no break
+        return this.versLittleEndian().versVarInt();
+      break;
       case 'littleendian':
-        result = new this.constructor(ajouter_varint(result.hexa), 'varint');
+        return new this.constructor(calculer_varint(this.hexa)).concat(this, 'varint');
+      break;
+      default:
+        return this;
       break;
     }
-    return result;
   }
   
   toString() {
-    var hexa = this.hexa;
-  
     // transforme en caractères
-    hexa = hexa.map(car_dec_vers_hexa);
+    var hexa = this.hexa.map(car_dec_vers_hexa);
   
-    // ajoute un préfixe et des espaces inter-octets
+    // ajoute des espaces inter-octets et un préfixe "0x", TODO : en faire des options
     let bytes = [];
     while (hexa.length != 0) {
       bytes.push(hexa.splice(0, 2).join(''));
     }
     return `0x ${bytes.join(' ')}`;
   }
+  
+  concat(suite, force_style) {
+    if (typeof suite == this.constructor) {
+      throw `'suite' doit être de type ${this.constructor}`;
+    }
     
+    return new this.constructor(this.hexa.concat(suite.hexa), force_style);
+  }
+  
+  // debut et fin en octets
+  slice(debut, fin, force_style) {
+    return new this.constructor(
+      this.hexa.slice(debut ? 2 * debut : undefined, fin ? 2 * fin : undefined),
+      force_style
+    );
+  }
+  
+  splitVarInt() {
+    let fields = [];
+    let hexa = this.versBigEndian().hexa.slice() // copy;
+    
+    while (hexa.length != 0) {
+      let entete = extraire_entete_varint(hexa);
+      
+      let field = new this.constructor(
+        hexa.splice(0, (entete.taille() + entete.versNombre()) * 2),
+        'varint'
+      );
+      console.log(entete.taille(), entete.versNombre(), field.taille(), hexa.length/2);
+      console.log(this.constructor.etalon(field.taille()).toString());
+      console.log(field.toString());
+      fields.push(field);
+    }
+    
+    return fields;
+  }
+  
+  // en octets
+  taille() {
+    return this.cached.taille;
+  }
+  
+  // en octets
+  // incluant le préfixe de 1 octet si présent
+  tailleEnteteVarInt() {
+    if (this.style != 'varint') {
+      throw `Cette chaine n'est pas au format varint'`;
+    } else {
+      return this.cached.taille_varint_entete;
+    }
+  }
+  
+  // en octets
+  tailleCorpsVarInt() {
+    if (this.style != 'varint') {
+      throw `Cette chaine n'est pas au format varint'`;
+    } else {
+      return this.cached.taille_varint_corps;
+    }
+  }
+  
+  verifierVarInt() {
+    if (this.style != 'varint') {
+      throw `Cette chaine n'est pas au format varint'`;
+    } else {
+      return this.cached.taille_varint_entete + this.cached.taille_varint_corps === this.cached.taille;
+    }
+  }
+  
 }
+
+const inverser_endian = function(hexa) {
+  let bytes = [];
+  while (hexa.length != 0) {
+    bytes = bytes.concat(hexa.splice(-2, 2));
+  }
+  return bytes;
+}
+
+const calculer_varint = function(hexa) {
+  const octets_total = Math.ceil(hexa.length / 2)
+  
+  // choisir une des tailles (1, 2 , 4, 8) et le préfixe la signalant
+  if (octets_total < 253) {
+    var octets_varint = 1;
+    var varint = new Hexa([]);
+  } else if (octets_total < 65536 ) { // 64 ko
+    var octets_varint = 2;
+    var varint = new Hexa([15, 13]);
+  } else if (octets_total < 16777216 ) { // 16 Mo
+    var octets_varint = 4;
+    var varint = new Hexa([15, 14]);
+  } else if (octets_varint < 4294967296) { // 4 Go
+    var varint = new Hexa([15, 15]);
+    var octets_varint = 8;
+  } else {
+    throw `${hexa} a une taille trop grande (> 8 octets)`;
+  }
+  
+  // ajouter la taille du contenu
+  varint = varint.concat(Hexa.depuisNombre(octets_total).versLittleEndian(), 'littleendian');
+
+  // remplir à droite les octets vides
+  const nombre_manquant = 2 * octets_varint - varint.length;
+  if (nombre_manquant > 0) {
+    varint = varint.concat(Array(nombre_manquant).fill(0));
+  }
+
+  return varint.hexa;
+}
+
+const extraire_entete_varint = function (hexa) {
+  // calcul de la taille de l'en-tête à partir du premier octet
+  let premier_octet = Number.parseInt(hexa.slice(0, 2).map(car_dec_vers_hexa).join(''), BASE);
+  // hexa[0] * 16 + hexa[1];
+  
+  if ([253, 254, 255].includes(premier_octet)) {
+    // l'en-tête est codée sur plusieurs octets, commençant après le premier
+    var taille_entete = 2 ** (premier_octet - 252);
+    return new Hexa(hexa.slice(2, taille_entete * 2), 'littleendian');
+  } else {
+    // l'en-tête est codée sur un octet et est le premier
+    return new Hexa(hexa.slice(0, 2), 'littleendian');
+  }
+}
+
+const car_dec_vers_hexa = function(chiffre) {
+  return chiffre.toString(BASE);
+}
+
+const car_hex_vers_dec = function(car) {
+  return Number.parseInt(car, BASE);
+}
+
+module.exports = Hexa;
