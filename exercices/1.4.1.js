@@ -1,4 +1,4 @@
-const Hexa = require('./lib/hexa.js');
+const Hexa = require('./lib/hexa_old.js');
 
 var entree = process.argv[2];
 var hexa = Hexa.depuisNombre(entree);
