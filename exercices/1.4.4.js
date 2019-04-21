@@ -1,4 +1,4 @@
-const Hexa = require('./lib/hexa.js');
+const Hexa = require('./lib/data/hexa.js');
 const lg = [11, 20]
 
 // TODO : make this a Hexa.toString() option

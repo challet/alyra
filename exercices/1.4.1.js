@@ -1,19 +1,9 @@
-const Hexa = require('./lib/hexa_old.js');
+const Hexa = require('./lib/data/hexa.js');
 
 var entree = process.argv[2];
-var hexa = Hexa.depuisNombre(entree);
+var hexa = Hexa.fromNumber(entree);
 
-switch (process.argv[3]) {
-  case 'big': default:
-    hexa = hexa.versBigEndian();
-  break;
-  case 'little':
-    hexa = hexa.versLittleEndian();
-  break;
-  case 'varint':
-    hexa = hexa.versVarInt();
-  break;
-}
+console.log('entree', entree );
+console.log('big endian', hexa.toString() );
+console.log('little endian', hexa.reverse().toString() );
 
-var sortie = hexa.toString();
-console.log(sortie);

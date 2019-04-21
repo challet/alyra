@@ -1,31 +1,22 @@
-const Hexa = require('./lib/hexa.js');
-const lg = [11, 20]
+const Hexa = require('./lib/data/hexa.js');
+const Display = new (require('./lib/component/display.js'))();
 
-var entree = process.argv[2];
-var hexa = Hexa.depuisChaine(entree, 'littleendian');
+var entree = Hexa.fromString(process.argv[2]);
 
-// TODO : make this a Hexa.toString() option
-function affiche(label, hexa) {
-  console.log(
-    label.padEnd(lg[0]),
-    `${hexa.style} (${hexa.taille()})`.padEnd(lg[1]),
-    hexa.toString()
-  );
-}
+Display.one(entree, 'entree');
 
-var transaction = hexa.slice(0, 32);
-var index       = hexa.slice(32, 36);
-var script_sig  = hexa.slice(36, hexa.taille() - 4, 'varint');
-var sequence    = hexa.slice(- 4);
+var transaction = entree.slice(0, 32);
+var index       = entree.slice(32, 36);
+var script_sig  = entree.slice(36, entree.length - 4);
+var sequence    = entree.slice(- 4);
 
-var etalon = Hexa.etalon(Math.max(transaction.taille(), index.taille(), script_sig.taille(), sequence.taille()));
+//var etalon = Hexa.etalon(Math.max(transaction.taille(), index.taille(), script_sig.taille(), sequence.taille()));
 
-affiche('etalon', etalon);
-console.log('-------');
-affiche('transaction', transaction);
-affiche('index',       index);
-affiche('script_sig',  script_sig);
-affiche('sequence',    sequence);
+Display.one(transaction, 'transaction');
+Display.one(index,       'index');
+Display.one(script_sig,  'script_sig');
+Display.one(sequence,    'sequence');
+
 
 // console.log('-------');
 // script_sig = script_sig.versLittleEndian();
