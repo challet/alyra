@@ -230,14 +230,14 @@ const calculer_varint = function(hexa) {
     var octets_varint = 1;
     var varint = new Hexa([]);
   } else if (octets_total < 65536 ) { // 64 ko
-    var octets_varint = 2;
+    var octets_varint = 3;
     var varint = new Hexa([15, 13]);
   } else if (octets_total < 16777216 ) { // 16 Mo
-    var octets_varint = 4;
+    var octets_varint = 5;
     var varint = new Hexa([15, 14]);
   } else if (octets_varint < 4294967296) { // 4 Go
     var varint = new Hexa([15, 15]);
-    var octets_varint = 8;
+    var octets_varint = 9;
   } else {
     throw `${hexa} a une taille trop grande (> 8 octets)`;
   }
