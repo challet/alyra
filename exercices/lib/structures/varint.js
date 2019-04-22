@@ -33,6 +33,22 @@ class Varint extends Hexa {
     }
   }
   
+  // try to get the varint at the beginning of an hexa buffer
+  static extractFrom(hexa) {
+    // calcul de la taille de l'en-tête à partir du premier octet
+    let first_byte = hexa.buffer[0];
+    
+    if ([0xfd, 0xfe, 0xff].includes(first_byte)) {
+      // l'en-tête est codée sur plusieurs octets, commençant après le premier
+      var header_size = 2 ** (first_byte - 0xfc);
+      return new this(hexa.buffer.slice(0, header_size + 1));
+    } else {
+      // l'en-tête est codée sur un octet et est le premier
+      return new this(hexa.buffer.slice(0, 1));
+    }
+    
+  }
+
 }
 
 module.exports = Varint;

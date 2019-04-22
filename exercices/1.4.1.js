@@ -1,4 +1,4 @@
-const Hexa = require('./lib/data/hexa.js');
+const Hexa = require('./lib/structures/hexa.js');
 
 var entree = process.argv[2];
 var hexa = Hexa.fromNumber(entree);

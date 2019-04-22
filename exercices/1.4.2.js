@@ -1,5 +1,5 @@
-const Hexa = require('./lib/data/hexa.js');
-const Varint = require('./lib/data/varint.js');
+const Hexa = require('./lib/structures/hexa.js');
+const Varint = require('./lib/structures/varint.js');
 
 var entree = process.argv[2];
 var hexa = Hexa.fromNumber(entree);

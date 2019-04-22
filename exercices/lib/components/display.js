@@ -33,6 +33,14 @@ class Display {
     }
   }
   
+  struct(struct) {
+    
+    struct.parts.forEach((part) => {
+      this.one(part.hexa, part.name);
+    });
+    
+  }
+  
 }
 
 module.exports = Display;

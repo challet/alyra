@@ -1,26 +1,33 @@
-const Hexa = require('./lib/data/hexa.js');
-const lg = [11, 20]
+const Hexa = require('./lib/structures/hexa.js');
+const Varint = require('./lib/structures/varint.js');
+const Input = require('./lib/structures/btc/input.js');
+const Display = new (require('./lib/components/display.js'))();
 
-// TODO : make this a Hexa.toString() option
-function affiche(label, hexa) {
-  console.log(
-    label.padEnd(lg[0]),
-    `${hexa.style} (${hexa.taille()})`.padEnd(lg[1]),
-    hexa.toString()
-  );
+var transaction = Hexa.fromString(process.argv[2]);
+var version     = transaction.slice(0, 4).reverse();
+
+//affiche('etalon', etalon);
+Display.one(transaction, 'transaction');
+Display.one(version, 'version');
+
+var varint_e        = Varint.extractFrom(transaction.slice(4));
+var decalage        = 4 + varint_e.length;
+var nb_entrees      = varint_e.toNumber();
+
+
+
+for (var i = 0; i < nb_entrees; i++ ) {
+  console.log('aaa');
+  console.log(Input.extractFrom(transaction.slice(decalage)));
+  
+  
 }
 
 
-var transaction = Hexa.depuisChaine(process.argv[2]);
-var version     = transaction.slice(0, 4, 'littleendian');
 
-//affiche('etalon', etalon);
-affiche('transaction', transaction);
-affiche('version', version);
 
-var entrees     = transaction.slice(4).identifierListe();
-entrees.forEach((entree, index) => {
-  affiche(`entree ${index}`, entree);
-});
+Display.one(nb_entrees, 'nb_entrees');
+
+
 
 
