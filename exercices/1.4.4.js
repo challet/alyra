@@ -1,6 +1,6 @@
-const Hexa = require('./lib/structures/hexa.js');
-const Varint = require('./lib/structures/varint.js');
-const Input = require('./lib/structures/btc/input.js');
+const Hexa = require('./lib/hexa.js');
+const Varint = require('./lib/varint.js');
+const Input = require('./lib/struct/btc/input.js');
 const Display = new (require('./lib/components/display.js'))();
 
 var transaction = Hexa.fromString(process.argv[2]);

@@ -1,5 +1,5 @@
-const Hexa = require('./../hexa.js');
-const Varint = require('./../varint.js');
+const Hexa = require('./hexa.js');
+const Varint = require('./varint.js');
 
 class Struct extends Hexa {
   
