@@ -1,9 +1,13 @@
 const Hexa = require('./lib/hexa.js');
-const Varint = require('./lib/varint.js');
-const Input = require('./lib/struct/btc/input.js');
+const Transaction = require('./lib/struct/btc/transaction.js');
 const Display = new (require('./lib/components/display.js'))();
 
-var transaction = Hexa.fromString(process.argv[2]);
+var data = Hexa.fromString(process.argv[2]);
+var transaction = Transaction.extractFrom(data);
+
+Display.struct(transaction);
+
+/*
 var version     = transaction.slice(0, 4).reverse();
 
 //affiche('etalon', etalon);
@@ -22,12 +26,6 @@ for (var i = 0; i < nb_entrees; i++ ) {
   
   
 }
-
-
-
-
 Display.one(nb_entrees, 'nb_entrees');
 
-
-
-
+*/

@@ -48,6 +48,14 @@ class Varint extends Hexa {
     }
     
   }
+  
+  toNumber() {
+    if (this.length == 1) {
+      return new Hexa(this.buffer).toNumber();
+    } else {
+      return new Hexa(this.buffer.slice(1)).toNumber();
+    }
+  }
 
 }
 
