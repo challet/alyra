@@ -5,7 +5,6 @@ class Hexa {
   
   constructor(buffer) {
     if (!Buffer.isBuffer(buffer)) {
-      a+b;
       throw "this is not a Buffer";
     } else {
       this.buffer = buffer;
@@ -23,6 +22,11 @@ class Hexa {
   
   static fromString(string) {
     return new this(Buffer.from(string, ENCODING));
+  }
+  
+  // fallback method for struct sequences parsing
+  static extractFrom(hexa) {
+    return new this(hexa.buffer);
   }
   
   toNumber() {

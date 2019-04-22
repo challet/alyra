@@ -10,10 +10,10 @@ class Struct extends Hexa {
     var parts = this.bytesSequence.map( (seq) => {
       if (Number.isInteger(seq.size)) {
         // if it is a fixed length part
-        var part = new seq.constructor(hexa.buffer.slice(shift, shift + seq.size));
+        var part = hexa.slice(shift, shift + seq.size);
       } else if (last_varint != null) {
         // if the previous chunk was a varint
-        var part = new seq.constructor(hexa.buffer.slice(shift, shift + last_varint.toNumber()));
+        var part = seq.constructor.extractFrom(hexa.slice(shift, shift + last_varint.toNumber()));
         last_varint = null;
       } else if (seq.size === null) {
         // if the length is unknown, use the extractFrom method
@@ -23,7 +23,6 @@ class Struct extends Hexa {
           last_varint = part;
         } 
       } else {
-        
         throw `Unsuitable sequence : ${seq}`;
       }
       
@@ -35,6 +34,7 @@ class Struct extends Hexa {
   }
   
   static get bytesSequence() {
+    a+b;
     throw `${this.constructor} class must implement a bytesSequence method.`;
   }
   
