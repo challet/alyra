@@ -36,7 +36,7 @@ class Struct extends Hexa {
             if (--last_varint == 0) {
               last_varint = null;
             } else {
-              i--; // new round
+              i--; // new round of the same
             }
           break;
           default:
