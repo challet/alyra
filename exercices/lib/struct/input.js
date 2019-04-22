@@ -1,6 +1,6 @@
-const Struct = require('./../../struct.js');
-const Varint = require('./../../varint.js');
-const Hexa = require('./../../hexa.js');
+const Struct = require('./struct.base.js');
+const Varint = require('./../varint.js');
+const Hexa = require('./../hexa.js');
 const Script = require('./script.js');
 
 class Input extends Struct {

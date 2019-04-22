@@ -1,4 +1,4 @@
-const Struct = require('./../struct');
+const Struct = require('./../struct/struct.base.js');
 
 class Display {
   

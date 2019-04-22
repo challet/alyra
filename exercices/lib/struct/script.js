@@ -1,7 +1,7 @@
-const Struct = require('./../../struct.js');
-const Hexa = require('./../../hexa.js');
-const Varint = require('./../../varint.js');
-const Op = require('./../../op/op.base.js');
+const Struct = require('./struct.base.js');
+const Hexa = require('./../hexa.js');
+const Varint = require('./../varint.js');
+const Op = require('./../op/op.base.js');
 
 class Script extends Struct {
 

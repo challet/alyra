@@ -1,6 +1,6 @@
-const Struct = require('./../../struct.js');
-const Varint = require('./../../varint.js');
-const Hexa = require('./../../hexa.js');
+const Struct = require('./struct.base.js');
+const Varint = require('./../varint.js');
+const Hexa = require('./../hexa.js');
 const Input = require('./input.js');
 const Output = require('./output.js');
 

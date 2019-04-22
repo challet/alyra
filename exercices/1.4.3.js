@@ -1,5 +1,5 @@
 const Hexa = require('./lib/hexa.js');
-const Input = require('./lib/struct/btc/input.js');
+const Input = require('./lib/struct/input.js');
 const Display = new (require('./lib/components/display.js'))();
 
 var data = Hexa.fromString(process.argv[2]);
