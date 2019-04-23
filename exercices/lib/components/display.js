@@ -12,7 +12,8 @@ class Display {
       sizes: {
         label: 14,
         constructor: 6,
-        length: 5
+        length: 5,
+        extra: 3
       }
     };
   }
@@ -39,7 +40,7 @@ class Display {
       console.log(
         (header ? label :                   '').padEnd(this.options.sizes.label), 
         (header ? hexa.constructor.name :   '').padEnd(this.options.sizes.constructor),
-        (header ? hexa.length.toString() :  '').padStart(this.options.sizes.length),
+        (header ? hexa.length.toString() :  '').padStart(this.options.sizes.length) + ' '.repeat(this.options.sizes.extra),
         body
       );
       

@@ -5,6 +5,7 @@ class Hexa {
   
   constructor(buffer) {
     if (!Buffer.isBuffer(buffer)) {
+      a+b;
       throw "this is not a Buffer";
     } else {
       this.buffer = buffer;
@@ -48,6 +49,11 @@ class Hexa {
   
   slice(start, end) {
     return new this.constructor(this.buffer.slice(start, end));
+  }
+  
+  equals(hexa) {
+    console.log(this, hexa);
+    return this.buffer.equals(hexa.buffer);
   }
   
 }

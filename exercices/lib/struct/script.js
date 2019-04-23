@@ -22,7 +22,7 @@ class Script extends Struct {
         shift += first;
       } else {
         // it is an operation
-        parts.push({ name: 'op', hexa: new Op(hexa.buffer.slice(shift, shift + 1)) });
+        parts.push({ name: 'op', hexa: Op.factory(first, hexa.buffer.slice(shift, shift + 1)) });
         shift += 1;
       }
     }

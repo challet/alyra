@@ -1,3 +1,23 @@
-76 a9 14 7c3f2e0e3f3ec87981f9f2059537a355db03f9e8 88 ac
+const Hexa = require('./lib/hexa.js');
+const Script = require('./lib/struct/script.js');
+const Display = new (require('./lib/components/display.js'))();
+const Processor = require('./lib/components/processor.js');
 
-48 3045022100d544eb1ede691f9833d44e5266e923dae058f702d2891e4ee87621a433ccdf4f022021e405c26b0483cd7c5636e4127a9510f3184d1994015aae43a228faa608362001 21 0372cc7efb1961962bba20db0c6a3eebdde0ae606986bf76cb863fa460aee8475c
+var data_out = Hexa.fromString(process.argv[2]);
+var data_in = Hexa.fromString(process.argv[3]);
+
+var script_out = Script.extractFrom(data_out);
+var script_in = Script.extractFrom(data_in);
+
+Display.one(script_out, '> output');
+Display.struct(script_out);
+Display.one(script_in, '> input');
+Display.struct(script_in);
+
+var proc = new Processor(script_out, script_in);
+console.log('> merge scripts');
+Display.struct(proc);
+
+console.log('> executes scripts');
+console.log(proc.run());
+
