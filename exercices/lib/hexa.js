@@ -5,7 +5,6 @@ class Hexa {
   
   constructor(buffer) {
     if (!Buffer.isBuffer(buffer)) {
-      a+b;
       throw "this is not a Buffer";
     } else {
       this.buffer = buffer;
