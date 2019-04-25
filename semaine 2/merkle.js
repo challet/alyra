@@ -10,8 +10,6 @@ program
   .parse(process.argv);
 
 
-
-
 class Arbre {
   constructor(valeurs) {
     valeurs = valeurs.map( (valeur) => {
