@@ -1,40 +1,15 @@
-class CourbeElliptique {
-  constructor(a, b) {
-    this.a = a;
-    this.b = b;
-    
-    if (4 * a ** 3 + 27 * b ** 2 == 0) {
-      throw new Exception(`${this} n'est pas une coourbe valide`);
-    }
-  }
-  
-  eq(courbe) {
-    return this.a == courbe.a && this.b == courbe.b;
-  }
-  
-  testPoint(x, y) {
-    return y ** 2 == x ** 3 + this.a * x + this.b;
-  }
-  
-  toString() {
-    return `(${this.a}, ${this.b})`;
-  }
-  
-}
-
-var program = require('commander');
-program
-  .version("1.0.0")
-  .parse(process.argv);
+const Eccrypt = require('./lib/components/eccrypt.js');
 
 const rl = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-var courbe = new CourbeElliptique(process.argv[2], process.argv[3]);
+
+var courbe = new Eccrypt(process.argv[2] || 0, process.argv[3] || 7);
 console.log(courbe.toString());
 
+// voir https://andrea.corbellini.name/ecc/interactive/modk-mul.html pour les coordonnées
 function test_prompt() {
   rl.question(`Entrer un point à tester (format "a,b"): `, (entree) => {
     rl.pause();
@@ -49,3 +24,5 @@ function test_prompt() {
   });
 }
 test_prompt();
+
+// TODO : implment modulo functions in Eccrypt
