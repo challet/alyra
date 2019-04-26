@@ -1,27 +1,20 @@
 const Op = require('./op.base.js');
 const Hexa = require('./../hexa.js');
 
-const CryptoJS = require('crypto-js');
-const sha256 = require('crypto-js/sha256');
-const ripemd160 = require('crypto-js/ripemd160');
+const crypto = require('crypto');
+const sha256 = crypto.createHash('sha256');
+const ripemd160 = crypto.createHash('ripemd160');
+
 
 module.exports = class OpA9 extends Op {
   
   execute(stack) {
     var key = stack.pop().buffer;
-    var sha = new Uint8Array(sha256(key).toString(CryptoJS.enc.Hex));
-    var rip = new Uint8Array(ripemd160(sha).toString(CryptoJS.enc.Hex));
-    console.log(key, sha, rip);
-    var hash = new Hexa(Buffer.from(rip, 'hex'));
-    
+    var sha = sha256.update(key).digest();
+    var rip = ripemd160.update(sha).digest();
+    var hash = new Hexa(rip, 'hex');
     
     stack.push(hash);
-    return;
-    stack.push(
-      Hexa.fromString(
-        ripemd160(sha256(stack.pop().toString()).toString()).toString()
-      )
-    );
   }
   
 }

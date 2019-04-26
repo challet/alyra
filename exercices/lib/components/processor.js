@@ -8,6 +8,7 @@ class Processor extends Struct {
   
   constructor(output, input) {
     super(Buffer.concat([output.buffer, input.buffer]), output.parts.concat(input.parts));
+    this.hasRan = false;
   }
 
   run() {
@@ -30,12 +31,15 @@ class Processor extends Struct {
         // execute instruction
         instr.execute(stack);
       }
+      
       console.info('Stack is now');
       stack.forEach( (i,j) => Display.one(i, j.toString()));
     }
-  
+    
+    this.hasRan = true;
+    this.result = stack.pop();
+    return this.result;
   }
-  
 }
 
 module.exports = Processor;

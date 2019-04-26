@@ -17,6 +17,7 @@ class Hexa {
   
   static fromNumber(number) {
     number = new Number(number);
+    console.log(Buffer.from(number.toString(BASE), ENCODING));
     return new this(Buffer.from(number.toString(BASE), ENCODING));
   }
   
@@ -51,7 +52,6 @@ class Hexa {
   }
   
   equals(hexa) {
-    console.log(this, hexa);
     return this.buffer.equals(hexa.buffer);
   }
   
