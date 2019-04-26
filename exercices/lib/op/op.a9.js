@@ -5,7 +5,6 @@ const crypto = require('crypto');
 const sha256 = crypto.createHash('sha256');
 const ripemd160 = crypto.createHash('ripemd160');
 
-
 module.exports = class OpA9 extends Op {
   
   execute(stack) {
