@@ -1,9 +1,9 @@
 function mod(n) {
-  return point;
+  return n;
 }
 
 function modinverse(n) {
-  return point;
+  return n;
 }
 
 class Eccrypt {
@@ -61,7 +61,7 @@ class Eccrypt {
   // scalar multiplication : multipying a point with an integer
   scalarMultiplication(point, n) {
     // pre-compute power-of-2 factors
-    // TODO : if point is known and invariable, it 
+    // TODO : if the curve and point parameters are known and invariable, the factors can be permanently cached
     let bit_count = n.bitLength();
     console.log(n, bit_count);
     let factors = [point];
