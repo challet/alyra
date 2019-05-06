@@ -21,4 +21,4 @@ Display.struct(proc);
 console.log("> Execute l'ensemble");
 let resultat = proc.run();
 
-Display.one(resultat, '> Résultat')
+Display.one(resultat, '> Résultat');
