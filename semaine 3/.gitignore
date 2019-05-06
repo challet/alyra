@@ -1,1 +1,11 @@
+# Remove dependencies from version control
 node_modules
+
+# We use yarn.lock instead
+package.lock
+
+# Ignore Log files as well
+.yarn-error.log
+
+# Ignore build folder
+dist
