@@ -1,0 +1,36 @@
+=============== May 13, 2019 (CEST) ===============
+11:19:36.403274 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:19:36.759610 db@open opening
+11:19:36.763845 version@stat F·[] S·0B[] Sc·[]
+11:19:37.047925 db@janitor F·2 G·0
+11:19:37.048013 db@open done T·288.310492ms
+=============== May 13, 2019 (CEST) ===============
+11:54:50.003837 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:54:50.005595 version@stat F·[] S·0B[] Sc·[]
+11:54:50.005624 db@open opening
+11:54:50.005716 journal@recovery F·1
+11:54:50.010873 journal@recovery recovering @1
+11:54:50.164037 memdb@flush created L0@2 N·621 S·50KiB "\x02d\xfc..\x19Ba,v429":"\xfe\x88\xcf..H\xef\xcc,v362"
+11:54:50.170892 version@stat F·[1] S·50KiB[50KiB] Sc·[0.25]
+11:54:51.016844 db@janitor F·3 G·0
+11:54:51.016911 db@open done T·1.011286629s
+12:59:07.926026 db@close closing
+12:59:07.927643 db@close done T·1.612765ms
+=============== May 13, 2019 (CEST) ===============
+14:14:15.510761 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:14:15.512411 version@stat F·[1] S·50KiB[50KiB] Sc·[0.25]
+14:14:15.512442 db@open opening
+14:14:15.512536 journal@recovery F·1
+14:14:15.516776 journal@recovery recovering @3
+14:14:17.048352 memdb@flush created L0@5 N·6979 S·362KiB "\v\x17\x99..\x16\x8e\xdf,v7600":"ѩ\xe9..\x9f\x17\xcf,v7595"
+14:14:17.051720 version@stat F·[2] S·413KiB[413KiB] Sc·[0.50]
+14:14:18.494869 db@janitor F·4 G·0
+14:14:18.494974 db@open done T·2.982559845s
+14:14:19.025256 table@compaction L0·2 -> L1·0 S·413KiB Q·7604
+14:14:19.610945 table@build created L1@8 N·5280 S·319KiB "\x02d\xfc..\x19Ba,v429":"\xfe\x88\xcf..H\xef\xcc,v362"
+14:14:19.611069 version@stat F·[0 1] S·319KiB[0B 319KiB] Sc·[0.00 0.00]
+14:14:20.965230 table@compaction committed F-1 S-93KiB Ke·0 D·2320 T·1.939903582s
+14:14:20.966899 table@remove removed @5
+14:14:21.169942 table@remove removed @2
+16:26:35.643369 db@close closing
+16:26:35.645596 db@close done T·2.223104ms
