@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Première DApp</title>
+  </head>
+
+  <body>
+
+    <h1>Titre de la première DApp</h1>
+    
+    <button id="metamask">Connect to MetaMask</button>
+    
+    <ul>
+      <li>balance (ETH): <span id="balance"></span></li>
+      <li>nombre de blocs : <span id="bloc"></span></li>
+      <li>prix du gaz (ETH) : <span id="prix"></span></li>
+    </ul>
+    
+    <script src="https://cdn.ethers.io/scripts/ethers-v4.min.js" charset="utf-8" type="text/javascript"></script>
+    <script type="text/javascript">
+      async function createMetaMaskDapp() {
+        try {
+          // Demande à MetaMask l'autorisation de se connecter
+          const addresses = await ethereum.enable();
+          const address = addresses[0]
+          // Connection au noeud fourni par l'objet web3
+          const provider = new ethers.providers.Web3Provider(ethereum);
+          return Promise.resolve({ address, provider });
+        } catch(err) {
+          // Gestion des erreurs
+          return Promise.reject(e);
+        }
+      }
+
+      function balance(dapp) {
+        return new Promise((resolve, reject) => {
+          dapp.provider.getBalance(dapp.address)
+            .then( (balance) => resolve(ethers.utils.formatEther(balance)) )
+            .catch( reject );
+        });
+      }
+
+      function bloc(dapp) {
+        return dapp.provider.getBlockNumber();
+      }
+
+      function prixGaz(dapp) {
+        return new Promise((resolve, reject) => {
+          dapp.provider.getGasPrice()
+            .then( (prix) => resolve(ethers.utils.formatEther(prix)) )
+            .catch( reject );
+        });
+      }
+
+      document.getElementById('metamask').addEventListener('click', (event) => {
+        event.preventDefault();
+        createMetaMaskDapp().then( (dapp) => {
+          Promise.all([balance(dapp), bloc(dapp), prixGaz(dapp)])
+            .then( (data) => {
+              const [balance, bloc, prix] = data;
+      
+              console.log('balance (ETH)', balance);
+              console.log('nombre de blocs', bloc);
+              console.log('prix du gaz (ETH)', prix);
+        
+              document.getElementById('balance').innerHTML = balance;
+              document.getElementById('bloc').innerHTML = bloc;
+              document.getElementById('prix').innerHTML = prix;
+            })
+            .catch( (error) => { 
+              console.error(error.message)
+            });
+        });
+      });
+    </script>
+    
+  </body>
+</html>
