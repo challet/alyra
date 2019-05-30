@@ -17,8 +17,9 @@ contract Credibilite {
         require(cred[msg.sender] - valeur > 1, "Pas assez de cred disponible (il doit rester au moins 1)");
         require(cred[destinataire] != 0, "Le destinataire doit déjà détenir des creds");
         require(valeur > 0, "Le montant du transfert n'est pas correct");
-        cred[destinataire] = SafeMath.add(cred[destinataire], valeur);
+        // enlever les crédits de l'émetteur avant de les ajouter au destinataire
         cred[msg.sender] = SafeMath.sub(cred[msg.sender], valeur);
+        cred[destinataire] = SafeMath.add(cred[destinataire], valeur);
     }
     
     function devoirExiste(bytes32 dev) view private returns (bool) {
