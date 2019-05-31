@@ -36,7 +36,7 @@ contract Assemblee {
         }
     }
 
-    function comptabiliser(uint indice) public view returns (int) {
+    function comptabiliser(uint vote) public view returns (int) {
         return int(votesPour[vote]) - int(votesContre[vote]);
     }
     
