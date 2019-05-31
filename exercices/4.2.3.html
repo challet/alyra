@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script src="semantic/dist/semantic.min.js"></script>
+    <script src="https://cdn.ethers.io/scripts/ethers-v4.min.js" charset="utf-8" type="text/javascript"></script>
+
+    
+    <title>Seconde DApp</title>
+  </head>
+
+  <body class="ui container segment">
+
+    <h1 class="ui header">Titre de la seconde DApp</h1>
+  
+
+    
+    <div class="ui animated list">
+      <div class="item">
+        <button class="ui button" id="metamask" >Connect to MetaMask</button>
+      </div>
+      
+      <div class="item">
+        <div class="ui labeled button disabled" id="cred">
+          <div class="ui blue button">
+            <i class="chess icon"></i>
+            Crédibilité
+          </div>
+          <div id="cred_value" class="ui basic blue left pointing label">
+            ?
+          </div>
+        </div>
+      </div>
+      
+      <div class="item">
+        <div class="ui fluid action input" id="hash">
+          <input type="url" placeholder="url" required="required" disabled="disabled" />
+          <button class="ui right labeled icon button disabled">
+            Obtenir le hash du devoir
+            <i class="bookmark icon"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="item">
+        <div class="ui fluid action input" id="remettre">
+          <input type="text" placeholder="hash" readonly="readonly" required="required" disabled="disabled" autocomplete="off" />
+          <button class="ui right labeled icon button disabled">
+            Remettre le hash
+            <i class="save icon"></i>
+          </button>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    
+    
+    
+    
+    <script type="text/javascript">
+      async function createMetaMaskDapp() {
+        try {
+          // Demande à MetaMask l'autorisation de se connecter
+          const addresses = await ethereum.enable();
+          const address = addresses[0]
+          // Connection au noeud fourni par l'objet web3
+          const provider = new ethers.providers.Web3Provider(ethereum);
+          
+          return Promise.resolve({ address, provider });
+        } catch(e) {
+          // Gestion des erreurs
+          return Promise.reject(e);
+        }
+      }
+      
+      $( document ).ready(function() {
+        $('.ui.label[data-content]').popup();
+        let $cred = $('#cred');
+        let $cred_value = $('#cred_value');
+        let $abi = $('#abi');
+        let $metamask = $('#metamask');
+        let $disabled_buttons = $('.ui.button.disabled');
+        let $hash = $('#hash');
+        let $remettre = $('#remettre');
+        let $remettre_input = $remettre.find('input');
+        
+        let dapp = null;
+        
+        // metamask connection
+        $metamask.on('click', (event) => {
+          event.preventDefault();
+          $metamask.addClass('loading').removeClass('positive negative');
+          
+          createMetaMaskDapp()
+            .then( (_dapp) => {
+              dapp = _dapp;
+              dapp.contrat = new ethers.Contract($abi.data('address'), JSON.parse($abi.text()), dapp.provider);
+              dapp.contratsign = dapp.contrat.connect(dapp.provider.getSigner(dapp.address))
+              $metamask.addClass('positive');
+              $disabled_buttons.removeClass('disabled');
+              $('input:disabled').prop('disabled', false);
+              
+              // afficher les évenements de remise dans la console
+              dapp.contrat.on('Remise', (hash, emetteur) => {
+                console.info(`Le devoir "${hash}" a été remis par "${emetteur}"`);
+              });
+              
+            })
+            .catch((e) => {
+              $metamask.addClass('negative');
+              throw e;
+            })
+            .finally(() => {
+              $metamask.removeClass('loading'); 
+            });
+        });
+        
+        // fetch and display credibility
+        $cred.on('click', (event) => {
+          event.preventDefault();
+          $cred.addClass('loading');
+          
+          dapp.contrat.cred(dapp.address)
+            .then( (cred) => {
+              cred = cred.toNumber();
+              $cred_value.text(cred);
+              console.log(`Crédibilité : ${cred}`);
+            })
+            .finally( () => {
+              $cred.removeClass('loading');
+            });
+        });
+        
+        
+        
+        // compute hash through smart contract
+        $hash.on('click', 'button', (event) => {
+          event.preventDefault();
+          let $button = $(event.target);
+          $button.addClass('loading').removeClass('positive negative');
+          
+          dapp.contrat.produireHash($hash.find('input').val())
+            .then((hash) => {
+              $button.addClass('positive');
+              $remettre_input.val(hash);
+            })
+            .finally( () => {
+              $button.removeClass('loading');
+            });
+        });
+        
+        // remettre
+        $remettre.on('click', 'button', (event) => {
+          event.preventDefault();
+          let $button = $(event.target);
+          $button.addClass('loading').removeClass('positive negative');;
+          
+          dapp.contratsign.remettre($remettre_input.val())
+            .then((res) => {
+              $button.addClass('positive');
+              console.log(res);
+            })
+            .finally( () => {
+              $button.removeClass('loading');
+            });
+            
+        });
+
+      });
+      
+    </script>
+    
+    <script id="abi" type="application/json" data-address="0xf394b9633f77608de4d50125cf9243e32814da8d">
+      [
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "dev",
+              "type": "bytes32"
+            }
+          ],
+          "name": "remettre",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "devoir",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "emetteur",
+              "type": "address"
+            }
+          ],
+          "name": "Remise",
+          "type": "event"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "destinataire",
+              "type": "address"
+            },
+            {
+              "name": "valeur",
+              "type": "uint256"
+            }
+          ],
+          "name": "transfer",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "cred",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "url",
+              "type": "string"
+            }
+          ],
+          "name": "produireHash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "pure",
+          "type": "function"
+        }
+      ]
+    </script>
+    
+  </body>
+</html>
