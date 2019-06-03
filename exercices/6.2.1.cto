@@ -1,0 +1,17 @@
+namespace fr.laposte
+
+participant Personne identified by numeroDePersonne {
+  o String numeroDePersonne
+}
+
+asset Colis identified by numeroDeColis {
+  o String numeroDeColis
+  o String localisation
+  --> Personne destinataire
+  --> Personne emetteur
+}
+
+transaction Deplacement {
+  --> Colis colis
+  o String arrivee
+}
