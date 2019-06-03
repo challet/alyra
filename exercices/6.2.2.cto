@@ -1,0 +1,31 @@
+namespace fr.laposte
+
+participant Personne identified by numeroDePersonne {
+  o String numeroDePersonne
+}
+
+enum EtatColis {
+  o Bon
+  o Endommagé
+  o Détruit
+}
+
+asset Colis identified by numeroDeColis {
+  o String numeroDeColis
+  o String localisation
+  o EtatColis etat
+  o String[] etatRaisons
+  --> Personne destinataire
+  --> Personne emetteur
+}
+
+transaction Deplacement {
+  --> Colis colis
+  o String arrivee
+}
+
+transaction ChangerEtat {
+  --> Colis colis
+  o EtatColis etat
+  o String cause
+}
