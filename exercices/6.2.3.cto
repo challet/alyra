@@ -1,0 +1,53 @@
+namespace fr.laposte
+
+concept Adresse {
+  o String rue
+  o String ville
+  o String pays
+}
+
+abstract participant Personne identified by numeroDePersonne {
+  o String numeroDePersonne
+  o Adresse adresse
+}
+
+participant Client extends Personne {}
+participant Facteur extends Personne {}
+participant CentreDeTri extends Personne {}
+
+enum EtatColis {
+  o Bon
+  o Endommagé
+  o Détruit
+}
+
+asset Colis identified by numeroDeColis {
+  o String numeroDeColis
+  o EtatColis etat
+  o String[] etatRaisons
+  --> Personne localisation
+  --> Client destinataire
+  --> Client emetteur
+}
+
+abstract transaction Deplacement {
+  --> Colis colis
+}
+
+transaction Transport extends Deplacement {
+  --> CentreDeTri destination
+}
+
+transaction Distribution extends Deplacement {
+}
+
+transaction ChangerEtat {
+  --> Colis colis
+  o EtatColis etat
+  o String cause
+}
+
+event DistributionEvent {
+  --> Colis colis
+  --> Personne destination
+}
